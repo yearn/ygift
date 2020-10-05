@@ -63,16 +63,31 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 	event Tip(address indexed tipper, uint256 indexed tokenId, address token, uint256 amount, string message);
 	event Collected(address indexed redeemer, uint256 indexed tokenId, address token, uint256 amount);
 
+	/**
+	 * @dev Allows controller to support a new token to be tipped
+	 *
+	 * _tokens: array of token addresses to whitelist
+	 */
 	function addTokens(address[] calldata _tokens) external onlyController {
 		for (uint256 i = 0; i < _tokens.length; i++)
 			supportedTokens[_tokens[i]] = true;
 	}
 
+	/**
+	 * @dev Allows controller to remove the support support of a token to be tipped
+	 *
+	 * _tokens: array of token addresses to blacklist
+	 */
 	function removeTokens(address[] calldata _tokens) external onlyController {
 		for (uint256 i = 0; i < _tokens.length; i++)
 			supportedTokens[_tokens[i]] = false;
 	}
 
+	/**
+	 * @dev Returns a gift struct
+	 *
+	 * _tokenId: gift in which the function caller would like to tip
+	 */
 	function getGift(uint256 _tokenId) public view
 	returns (
 		string memory,
@@ -100,6 +115,20 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		);
 	}
 
+	/**
+	 * @dev Mints a new Gift NFT and places it into the contract address for future collection
+	 * _to: recipient of the gift
+	 * _token: token address of the token to be gifted
+	 * _amount: amount of _token to be gifted
+	 * _url: URL link for the image attached to the nft
+	 * _name: name of the gift
+	 * _msg: Tip message given by the original minter
+	 * _lockedDuration: the amount of time the gift  will be locked until the recipient can collect it 
+	 *
+	 * requirement: only a whitelisted minter can call this function
+	 *
+	 * Emits a {Tip} event.
+	 */
 	function mint(
 		address _to,
 		address _token,
@@ -122,6 +151,14 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		emit Tip(msg.sender, _id, _token, _amount, _msg);
 	}
 
+	/**
+	 * @dev Tip some tokens to  Gift NFT 
+	 * _tokenId: gift in which the function caller would like to tip
+	 * _amount: amount of _token to be gifted
+	 * _msg: Tip message given by the original minter
+	 *
+	 * Emits a {Tip} event.
+	 */
 	function tip(uint256 _tokenId, uint256 _amount, string memory _msg) public {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		Gift storage gift = gifts[_tokenId];
@@ -131,6 +168,14 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		emit Tip(msg.sender, _tokenId, gift.token, _amount, _msg);
 	}
 
+	/**
+	 * @dev Allows the gift recipient to redeem their gift and set
+	 * the redeemed variable to true enabling token colleciton
+	 *
+	 * _tokenId: gift in which the function caller would like to tip
+	 *
+	 * requirement: caller must own the gift recipient && function must be called after the locked duration
+	 */
 	function redeem(uint256 _tokenId) public {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		Gift storage gift = gifts[_tokenId];
@@ -140,6 +185,14 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		_safeTransfer(address(this), msg.sender, _tokenId, "");
 	}
 
+
+	/**
+	 * @dev Allows the gift recipient to collect their tokens
+	 * _amount: amount of tokens the gift owner would like to collect
+	 * _tokenId: gift in which the function caller would like to tip
+	 *
+	 * requirement: caller must own the gift recipient && gift must have been redeemed
+	 */
 	function collect(uint256 _amount, uint256 _tokenId) public {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		require(ownerOf(_tokenId) == msg.sender, "yGift: You are not the NFT owner.");
@@ -151,6 +204,13 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		emit Collected(msg.sender, _tokenId, gift.token, _amount);
 	}
 
+	/**
+	 * @dev Allows the contract controller to remove dust tokens (air drops, accidental transfers etc)
+	 * _amount: amount of tokens the gift owner would like to collect
+	 * _tokenId: gift in which the function caller would like to tip
+	 *
+	 * requirement: caller must be controller
+	 */
 	function removeDust(address _token, uint256 _amount) external onlyController {
 		require (IERC20(_token).balanceOf(address(this)).sub(_amount) >= tokensHeld[_token],
 			"yGift: Cannot withdraw tokens.");
