@@ -60,6 +60,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 	mapping(address => bool) supportedTokens;
 	mapping(address => uint256) tokensHeld;
 
+	event GiftMinted(address indexed from, address indexed to, uint256 indexed tokenId);
 	event Tip(address indexed tipper, uint256 indexed tokenId, address token, uint256 amount, string message);
 	event Collected(address indexed redeemer, uint256 indexed tokenId, address token, uint256 amount);
 
@@ -148,6 +149,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		tokensHeld[_token] = tokensHeld[_token].add(_amount);
 		_safeMint(address(this), _id);
 		IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+		emit GiftMinted(msg.sender, _to, _id);
 		emit Tip(msg.sender, _id, _token, _amount, _msg);
 	}
 
