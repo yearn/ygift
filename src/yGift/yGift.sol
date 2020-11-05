@@ -1,4 +1,4 @@
-pragma solidity ^0.6.4;
+pragma solidity ^0.7.3;
 
 import "../erc721/ERC721.sol";
 import "../erc20/IERC20.sol";
@@ -183,7 +183,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		Gift storage gift = gifts[_tokenId];
 		require(msg.sender == gift.recipient, "yGift: You are not the recipient.");
-		require(gift.createdAt.add(gift.lockedDuration) >= block.timestamp, "yGift: Gift is still locked.");
+		require(gift.createdAt.add(gift.lockedDuration) <= block.timestamp, "yGift: Gift is still locked.");
 		gift.redeemed = true;
 		_safeTransfer(address(this), msg.sender, _tokenId, "");
 		emit Redeemed(_tokenId);
