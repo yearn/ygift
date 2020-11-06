@@ -139,7 +139,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		string calldata _name,
 		string calldata _msg,
 		uint256 _lockedDuration)
-		external onlyWhitelisted {
+		external {
 		require(supportedTokens[_token], "yGift: ERC20 token is not supported.");
 		require(IERC20(_token).balanceOf(msg.sender) >= _amount, "yGift: Not enough token balance to mint."); 
 		require(_lockedDuration <= MAX_LOCK_PERIOD, "yGift: Locked period is too large");
