@@ -1212,9 +1212,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor (string memory name, string memory symbol) public {
-        _name = name;
-        _symbol = symbol;
+    constructor (string memory __name, string memory __symbol) public {
+        _name = __name;
+        _symbol = __symbol;
 
         // register the supported interfaces to conform to ERC721 via ERC165
         _registerInterface(_INTERFACE_ID_ERC721);
@@ -1605,12 +1605,12 @@ interface IERC20 {
     /**
      * @dev Returns the amount of tokens in existence.
      */
-    //function totalSupply() external view returns (uint256);
+    function totalSupply() external view returns (uint256);
 
     /**
      * @dev Returns the amount of tokens owned by `account`.
      */
-    //function balanceOf(address account) external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
 
     /**
      * @dev Moves `amount` tokens from the caller's account to `recipient`.
@@ -1628,7 +1628,7 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    //function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(address owner, address spender) external view returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -1713,7 +1713,7 @@ contract Controller {
 
 // File: contracts/yGift/yGift.sol
 
-pragma solidity ^0.7.3;
+pragma solidity ^0.6.4;
 
 
 
