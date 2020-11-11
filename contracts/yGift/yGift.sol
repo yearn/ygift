@@ -204,7 +204,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		require(gift.redeemed, "yGift: NFT tokens cannot be collected.");
 		gift.amount = gift.amount.sub(_amount);
 		tokensHeld[gift.token] = tokensHeld[gift.token].sub(_amount);
-		IERC20(gift.token).safeTransferFrom(address(this), msg.sender, _amount);
+		IERC20(gift.token).safeTransfer(msg.sender, _amount);
 		emit Collected(msg.sender, _tokenId, gift.token, _amount);
 	}
 
