@@ -3,9 +3,9 @@
 pragma solidity ^0.6.4;
 
 contract Controller {
-	address controller;
+	address public controller;
 
-	mapping(address => bool) whitelistedMinters;
+	mapping(address => bool) public whitelistedMinters;
 
 	constructor() public {
 		controller = msg.sender;

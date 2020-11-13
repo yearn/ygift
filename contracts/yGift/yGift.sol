@@ -57,10 +57,10 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		uint256	lockedDuration;
 	}
 
-	Gift[] gifts;
+	Gift[] public gifts;
 
-	mapping(address => bool) supportedTokens;
-	mapping(address => uint256) tokensHeld;
+	mapping(address => bool) public supportedTokens;
+	mapping(address => uint256) public tokensHeld;
 
 	event GiftMinted(address indexed from, address indexed to, uint256 indexed tokenId, uint256 unlocksAt);
 	event Tip(address indexed tipper, uint256 indexed tokenId, address token, uint256 amount, string message);
