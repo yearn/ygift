@@ -121,7 +121,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	}
 	
 	function available(uint amount, uint start, uint duration) public view returns (uint) {
-		if (block.timestamp < start) return 0;
+		if (start > block.timestamp) return 0;
 		if (duration == 0) return amount;
 		return amount * min(block.timestamp - start, duration) / duration;
 	}
@@ -134,13 +134,13 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * requirement: caller must own the gift recipient && gift must have been redeemed
 	 */
 	function collect(uint _tokenId, uint _amount) public {
-		require(_isApprovedOrOwner(msg.sender, _tokenId), "yGift: You are not the NFT owner.");
+		require(_isApprovedOrOwner(msg.sender, _tokenId), "yGift: You are not the NFT owner");
 		
 		Gift storage gift = gifts[_tokenId];
 		
-		require(gift.start > block.timestamp, "yGift: Rewards still vesting");
+		require(gift.start < block.timestamp, "yGift: Rewards still vesting");
 		uint _available = available(gift.amount, gift.start, gift.duration);
-		if (_amount < _available) _amount = _available;
+		if (_amount > _available) _amount = _available;
 		require(_amount > 0, "yGift: insufficient amount");
 
 		gift.amount = gift.amount.sub(_amount);

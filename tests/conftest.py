@@ -17,8 +17,8 @@ def giftee(accounts):
 
 
 @pytest.fixture()
-def token(interface):
-    return interface.ERC20("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+def token(interface, minter):
+    return interface.ERC20("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", owner=minter)
 
 
 @pytest.fixture()
