@@ -22,10 +22,5 @@ def token(interface):
 
 
 @pytest.fixture()
-def controller(accounts):
-    return accounts[0]
-
-
-@pytest.fixture()
-def ygift(yGift, controller):
-    return yGift.deploy({"from": controller})
+def ygift(yGift, minter):
+    return yGift.deploy({"from": minter})

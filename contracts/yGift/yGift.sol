@@ -91,7 +91,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 			url: _url,
 			amount: _amount,
 			start: _start,
-			duration: _duration,
+			duration: _duration
 		});
 		gifts.push(gift);
 		_safeMint(_to, _id);
@@ -116,7 +116,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		emit Tip(msg.sender, _tokenId, gift.token, _amount, _msg);
 	}
 
-	function min(uint a, uint b) internal pure return (uint) {
+	function min(uint a, uint b) internal pure returns (uint) {
 		return a < b ? a : b;
 	}
 	
