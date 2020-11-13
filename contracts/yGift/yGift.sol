@@ -24,7 +24,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 
 	event GiftMinted(address indexed from, address indexed to, uint indexed tokenId, uint unlocksAt);
 	event Tip(address indexed tipper, uint indexed tokenId, address token, uint amount, string message);
-	event Collected(address indexed collecter, uint indexed tokenId, address token, uint amount);
+	event Collected(address indexed collector, uint indexed tokenId, address token, uint amount);
 
 	/**
 	 * @dev Mints a new Gift NFT and places it into the contract address for future collection
