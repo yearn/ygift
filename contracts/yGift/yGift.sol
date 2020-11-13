@@ -115,11 +115,15 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		IERC20(gift.token).safeTransferFrom(msg.sender, address(this), _amount);
 		emit Tip(msg.sender, _tokenId, gift.token, _amount, _msg);
 	}
+
+	function min(uint a, uint b) internal pure return (uint) {
+		return a < b ? a : b;
+	}
 	
 	function available(uint amount, uint start, uint duration) public view returns (uint) {
 		if (block.timestamp < start) return 0;
 		if (duration == 0) return amount;
-		return amount * (block.timestamp - start) / duration;
+		return amount * min(block.timestamp - start, duration) / duration;
 	}
 
 	/**
