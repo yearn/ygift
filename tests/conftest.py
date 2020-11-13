@@ -7,7 +7,7 @@ def shared_setup(fn_isolation):
 
 
 @pytest.fixture()
-def gifter(accounts):
+def minter(accounts):
     return accounts.at("0x2F0b23f53734252Bda2277357e97e1517d6B042A", force=True)
 
 
