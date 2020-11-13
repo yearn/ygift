@@ -81,4 +81,4 @@ jobs:
       run: pip install -r requirements-dev.txt
 
     - name: Run tests
-      run: brownie test tests/${{ matrix.type }}/ -s --coverage
+      run: brownie test tests/ -s --coverage
