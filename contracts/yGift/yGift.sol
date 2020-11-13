@@ -12,12 +12,12 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 
 	struct Gift {
 		address	token;
-		string name;
-		string message;
-		string url;
 		uint amount;
 		uint start;
 		uint duration;
+		string name;
+		string message;
+		string url;
 	}
 
 	Gift[] public gifts;
@@ -34,8 +34,8 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * _name: name of the gift
 	 * _msg: Tip message given by the original minter
 	 * _url: URL link for the image attached to the nft
-	 * _start: the amount of time the gift  will be locked until the recipient can collect it 
-	 * _duration: duration over which the amount linearly becomes available
+	 * _start: the amount of time the gift will be locked until the recipient can collect it   
+	 * _duration: duration over which the amount linearly becomes available  *
 	 *
 	 * requirement: only a whitelisted minter can call this function
 	 *
@@ -87,10 +87,17 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		return a < b ? a : b;
 	}
 
-	function available(uint amount, uint start, uint duration) public view returns (uint) {
-		if (start > block.timestamp) return 0;
-		if (duration == 0) return amount;
-		return amount * min(block.timestamp - start, duration) / duration;
+	/**
+	 * @dev Returns the available amount of tokens based on vesting parametres
+	 * _amount: amount of tokens in the gift
+	 * _start: Time at which the cliff ends
+	 * _duration: vesting period
+	 *
+	 */
+	function available(uint _amount, uint _start, uint _duration) public view returns (uint) {
+		if (_start > block.timestamp) return 0;
+		if (_duration == 0) return _amount;
+		return _amount * min(block.timestamp - _start, _duration) / _duration;
 	}
 
 	/**
