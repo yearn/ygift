@@ -3,7 +3,6 @@ from brownie import Wei
 
 
 def test_operation(ygift, minter, giftee, token, chain):
-    ygift.addTokens([token])
     amount = Wei("1000 ether")
     lock = 3600
 

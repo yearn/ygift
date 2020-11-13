@@ -5,9 +5,6 @@ def test_controller(ygift, controller, minter, token):
     assert ygift.symbol() == "yGIFT"
     assert ygift.controller() == controller
 
-    ygift.addTokens([token])
-    assert ygift.supportedTokens(token)
-
     ygift.setController(minter)
     assert ygift.controller() == minter
 
