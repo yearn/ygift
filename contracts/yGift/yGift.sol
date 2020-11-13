@@ -84,7 +84,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		uint _duration)
 	external {
 		uint _id = gifts.length;
-		Gift memory gift = Gift({
+		gifts.push(Gift({
 			token: _token,
 			name: _name,
 			message: _msg,
@@ -92,8 +92,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 			amount: _amount,
 			start: _start,
 			duration: _duration
-		});
-		gifts.push(gift);
+		}));
 		_safeMint(_to, _id);
 		IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
 		emit GiftMinted(msg.sender, _to, _id, _start);
@@ -119,7 +118,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	function min(uint a, uint b) internal pure returns (uint) {
 		return a < b ? a : b;
 	}
-	
+
 	function available(uint amount, uint start, uint duration) public view returns (uint) {
 		if (start > block.timestamp) return 0;
 		if (duration == 0) return amount;
