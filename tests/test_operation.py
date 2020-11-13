@@ -47,3 +47,16 @@ def test_operation(ygift, minter, giftee, token, chain):
     assert token.balanceOf(giftee) == amount
     assert token.balanceOf(ygift) == amount * 2
     assert ygift.gifts(0).dict()["amount"] == amount * 2
+
+    # collecting someone else's gift shouldn't be possible
+    with brownie.reverts():
+        ygift.collect(0, amount)
+
+    # controller shouldn't be able to claim more than dust amount
+    token.transfer(ygift, amount, {'from': minter})
+    assert token.balanceOf(ygift) == amount * 3
+    
+    with brownie.reverts():
+        ygift.removeDust(token, amount * 2)
+    
+    ygift.removeDust(token, amount)
