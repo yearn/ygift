@@ -88,38 +88,6 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 	}
 
 	/**
-	 * @dev Returns a gift struct
-	 *
-	 * _tokenId: gift in which the function caller would like to tip
-	 */
-	function getGift(uint256 _tokenId) public view
-	returns (
-		string memory,
-		address,
-		address,
-		address,
-		uint256,
-		string memory,
-		bool,
-		uint256,
-		uint256
-	) {
-		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
-		Gift memory gift = gifts[_tokenId];
-		return (
-		gift.name,
-		gift.minter,
-		gift.recipient,
-		gift.token,
-		gift.amount,
-		gift.imageURL,
-		gift.redeemed,
-		gift.createdAt,
-		gift.lockedDuration
-		);
-	}
-
-	/**
 	 * @dev Mints a new Gift NFT and places it into the contract address for future collection
 	 * _to: recipient of the gift
 	 * _token: token address of the token to be gifted
