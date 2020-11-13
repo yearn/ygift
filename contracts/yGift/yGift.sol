@@ -162,12 +162,12 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 
 	/**
 	 * @dev Allows the gift recipient to collect their tokens
-	 * _amount: amount of tokens the gift owner would like to collect
 	 * _tokenId: gift in which the function caller would like to tip
+	 * _amount: amount of tokens the gift owner would like to collect
 	 *
 	 * requirement: caller must own the gift recipient && gift must have been redeemed
 	 */
-	function collect(uint256 _amount, uint256 _tokenId) public {
+	function collect(uint256 _tokenId, uint256 _amount) public {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		require(ownerOf(_tokenId) == msg.sender, "yGift: You are not the NFT owner.");
 		Gift storage gift = gifts[_tokenId];
