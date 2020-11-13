@@ -4,7 +4,6 @@ pragma solidity ^0.6.4;
 
 import "../erc721/ERC721.sol";
 import "../erc20/IERC20.sol";
-import "./Controller.sol";
 import "../utils/SafeMath.sol";
 
 library SafeERC20 {
@@ -39,42 +38,36 @@ library SafeERC20 {
 	}
 }
 
-contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
+contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	using SafeERC20 for IERC20;
-	using SafeMath for uint256;
-
-	uint256 constant MAX_LOCK_PERIOD = 30 days;
+	using SafeMath for uint;
 
 	struct Gift {
-		string	name;
-		address	minter;
-		address	recipient;
 		address	token;
-		uint256	amount;
-		string	imageURL;
-		bool	redeemed;
-		uint256	createdAt;
-		uint256	lockedDuration;
+		string name;
+		string message;
+		string url;
+		uint amount;
+		uint start;
+		uint duration;
 	}
 
 	Gift[] public gifts;
 
-	mapping(address => uint256) public tokensHeld;
-
-	event GiftMinted(address indexed from, address indexed to, uint256 indexed tokenId, uint256 unlocksAt);
-	event Tip(address indexed tipper, uint256 indexed tokenId, address token, uint256 amount, string message);
-	event Redeemed(uint256 indexed tokenId);
-	event Collected(address indexed collecter, uint256 indexed tokenId, address token, uint256 amount);
+	event GiftMinted(address indexed from, address indexed to, uint indexed tokenId, uint unlocksAt);
+	event Tip(address indexed tipper, uint indexed tokenId, address token, uint amount, string message);
+	event Collected(address indexed collecter, uint indexed tokenId, address token, uint amount);
 
 	/**
 	 * @dev Mints a new Gift NFT and places it into the contract address for future collection
 	 * _to: recipient of the gift
 	 * _token: token address of the token to be gifted
 	 * _amount: amount of _token to be gifted
-	 * _url: URL link for the image attached to the nft
 	 * _name: name of the gift
 	 * _msg: Tip message given by the original minter
-	 * _lockedDuration: the amount of time the gift  will be locked until the recipient can collect it 
+	 * _url: URL link for the image attached to the nft
+	 * _start: the amount of time the gift  will be locked until the recipient can collect it 
+	 * _duration: duration over which the amount linearly becomes available
 	 *
 	 * requirement: only a whitelisted minter can call this function
 	 *
@@ -83,60 +76,51 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 	function mint(
 		address _to,
 		address _token,
-		uint256 _amount,
-		string calldata _url,
+		uint _amount,
 		string calldata _name,
 		string calldata _msg,
-		uint256 _lockedDuration)
-		external {
-		require(IERC20(_token).balanceOf(msg.sender) >= _amount, "yGift: Not enough token balance to mint."); 
-		require(_lockedDuration <= MAX_LOCK_PERIOD, "yGift: Locked period is too large");
-
-		uint256 _id = gifts.length;
-		Gift memory gift = Gift(_name, msg.sender, _to, _token, _amount, _url, false, block.timestamp, _lockedDuration);
+		string calldata _url,
+		uint _start,
+		uint _duration)
+	external {
+		uint _id = gifts.length;
+		Gift memory gift = Gift({
+			token: _token,
+			name: _name,
+			message: _msg,
+			url: _url,
+			amount: _amount,
+			start: _start,
+			duration: _duration,
+		});
 		gifts.push(gift);
-		tokensHeld[_token] = tokensHeld[_token].add(_amount);
-		_safeMint(address(this), _id);
+		_safeMint(_to, _id);
 		IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-		emit GiftMinted(msg.sender, _to, _id, block.timestamp.add(_lockedDuration));
+		emit GiftMinted(msg.sender, _to, _id, _start);
 		emit Tip(msg.sender, _id, _token, _amount, _msg);
 	}
 
 	/**
-	 * @dev Tip some tokens to  Gift NFT 
+	 * @dev Tip some tokens to Gift NFT 
 	 * _tokenId: gift in which the function caller would like to tip
 	 * _amount: amount of _token to be gifted
 	 * _msg: Tip message given by the original minter
 	 *
 	 * Emits a {Tip} event.
 	 */
-	function tip(uint256 _tokenId, uint256 _amount, string memory _msg) public {
+	function tip(uint _tokenId, uint _amount, string calldata _msg) external {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		Gift storage gift = gifts[_tokenId];
 		gift.amount = gift.amount.add(_amount);
-		tokensHeld[gift.token] = tokensHeld[gift.token].add(_amount);
 		IERC20(gift.token).safeTransferFrom(msg.sender, address(this), _amount);
 		emit Tip(msg.sender, _tokenId, gift.token, _amount, _msg);
 	}
-
-	/**
-	 * @dev Allows the gift recipient to redeem their gift and set
-	 * the redeemed variable to true enabling token colleciton
-	 *
-	 * _tokenId: gift in which the function caller would like to tip
-	 *
-	 * requirement: caller must own the gift recipient && function must be called after the locked duration
-	 */
-	function redeem(uint256 _tokenId) public {
-		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
-		Gift storage gift = gifts[_tokenId];
-		require(msg.sender == gift.recipient, "yGift: You are not the recipient.");
-		require(gift.createdAt.add(gift.lockedDuration) <= block.timestamp, "yGift: Gift is still locked.");
-		gift.redeemed = true;
-		_safeTransfer(address(this), msg.sender, _tokenId, "");
-		emit Redeemed(_tokenId);
+	
+	function available(uint amount, uint start, uint duration) public view returns (uint) {
+		if (block.timestamp < start) return 0;
+		if (duration == 0) return amount;
+		return amount * (block.timestamp - start) / duration;
 	}
-
 
 	/**
 	 * @dev Allows the gift recipient to collect their tokens
@@ -145,31 +129,22 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 	 *
 	 * requirement: caller must own the gift recipient && gift must have been redeemed
 	 */
-	function collect(uint256 _tokenId, uint256 _amount) public {
-		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
-		require(ownerOf(_tokenId) == msg.sender, "yGift: You are not the NFT owner.");
+	function collect(uint _tokenId, uint _amount) public {
+		require(_isApprovedOrOwner(msg.sender, _tokenId), "yGift: You are not the NFT owner.");
+		
 		Gift storage gift = gifts[_tokenId];
-		require(gift.redeemed, "yGift: NFT tokens cannot be collected.");
+		
+		require(gift.start > block.timestamp, "yGift: Rewards still vesting");
+		uint _available = available(gift.amount, gift.start, gift.duration);
+		if (_amount < _available) _amount = _available;
+		require(_amount > 0, "yGift: insufficient amount");
+
 		gift.amount = gift.amount.sub(_amount);
-		tokensHeld[gift.token] = tokensHeld[gift.token].sub(_amount);
 		IERC20(gift.token).safeTransfer(msg.sender, _amount);
 		emit Collected(msg.sender, _tokenId, gift.token, _amount);
 	}
 
-	/**
-	 * @dev Allows the contract controller to remove dust tokens (air drops, accidental transfers etc)
-	 * _amount: amount of tokens the gift owner would like to collect
-	 * _tokenId: gift in which the function caller would like to tip
-	 *
-	 * requirement: caller must be controller
-	 */
-	function removeDust(address _token, uint256 _amount) external onlyController {
-		require (IERC20(_token).balanceOf(address(this)).sub(_amount) >= tokensHeld[_token],
-			"yGift: Cannot withdraw tokens.");
-		IERC20(_token).safeTransferFrom(address(this), msg.sender, _amount);
-	}
-
-	function onERC721Received(address _operator, address _from, uint256 _tokenId, bytes calldata _data) external view returns (bytes4) {
+	function onERC721Received(address _operator, address _from, uint _tokenId, bytes calldata _data) external view returns (bytes4) {
 		require(msg.sender == address(this), "yGift: Cannot receive other NFTs");
 		return yGift.onERC721Received.selector;
 	}
