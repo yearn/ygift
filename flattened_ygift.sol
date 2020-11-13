@@ -1,29 +1,4 @@
-// File: contracts/utils/Context.sol
-
-pragma solidity ^0.6.4;
-
-/*
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with GSN meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
- */
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address payable) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes memory) {
-        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
-        return msg.data;
-    }
-}
-
-// File: contracts/erc721/IERC165.sol
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.4;
 
@@ -48,271 +23,36 @@ interface IERC165 {
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
-// File: contracts/erc721/IERC721.sol
-
-pragma solidity ^0.6.4;
-
-
 /**
- * @dev Required interface of an ERC721 compliant contract.
+ * @dev String operations.
  */
-interface IERC721 is IERC165 {
+library Strings {
     /**
-     * @dev Emitted when `tokenId` token is transfered from `from` to `to`.
+     * @dev Converts a `uint256` to its ASCII `string` representation.
      */
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    function toString(uint256 value) internal pure returns (string memory) {
+        // Inspired by OraclizeAPI's implementation - MIT licence
+        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
 
-    /**
-     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
-     */
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
-
-    /**
-     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
-     */
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-
-    /**
-     * @dev Returns the number of tokens in ``owner``'s account.
-     */
-    function balanceOf(address owner) external view returns (uint256 balance);
-
-    /**
-     * @dev Returns the owner of the `tokenId` token.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function ownerOf(uint256 tokenId) external view returns (address owner);
-
-    /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
-     */
-    function safeTransferFrom(address from, address to, uint256 tokenId) external;
-
-    /**
-     * @dev Transfers `tokenId` token from `from` to `to`.
-     *
-     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must be owned by `from`.
-     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(address from, address to, uint256 tokenId) external;
-
-    /**
-     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
-     * The approval is cleared when the token is transferred.
-     *
-     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
-     *
-     * Requirements:
-     *
-     * - The caller must own the token or be an approved operator.
-     * - `tokenId` must exist.
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address to, uint256 tokenId) external;
-
-    /**
-     * @dev Returns the account approved for `tokenId` token.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function getApproved(uint256 tokenId) external view returns (address operator);
-
-    /**
-     * @dev Approve or remove `operator` as an operator for the caller.
-     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
-     *
-     * Requirements:
-     *
-     * - The `operator` cannot be the caller.
-     *
-     * Emits an {ApprovalForAll} event.
-     */
-    function setApprovalForAll(address operator, bool _approved) external;
-
-    /**
-     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
-     *
-     * See {setApprovalForAll}
-     */
-    function isApprovedForAll(address owner, address operator) external view returns (bool);
-
-    /**
-      * @dev Safely transfers `tokenId` token from `from` to `to`.
-      *
-      * Requirements:
-      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-      * - `tokenId` token must exist and be owned by `from`.
-      * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-      *
-      * Emits a {Transfer} event.
-      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
-}
-
-// File: contracts/erc721/IERC721Metadata.sol
-
-pragma solidity ^0.6.4;
-
-
-/**
- * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
- * @dev See https://eips.ethereum.org/EIPS/eip-721
- */
-interface IERC721Metadata is IERC721 {
-
-    /**
-     * @dev Returns the token collection name.
-     */
-    function name() external view returns (string memory);
-
-    /**
-     * @dev Returns the token collection symbol.
-     */
-    function symbol() external view returns (string memory);
-
-    /**
-     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
-     */
-    function tokenURI(uint256 tokenId) external view returns (string memory);
-}
-
-// File: contracts/erc721/IERC721Enumerable.sol
-
-pragma solidity ^0.6.4;
-
-
-/**
- * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
- * @dev See https://eips.ethereum.org/EIPS/eip-721
- */
-interface IERC721Enumerable is IERC721 {
-
-    /**
-     * @dev Returns the total amount of tokens stored by the contract.
-     */
-    function totalSupply() external view returns (uint256);
-
-    /**
-     * @dev Returns a token ID owned by `owner` at a given `index` of its token list.
-     * Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
-     */
-    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256 tokenId);
-
-    /**
-     * @dev Returns a token ID at a given `index` of all the tokens stored by the contract.
-     * Use along with {totalSupply} to enumerate all tokens.
-     */
-    function tokenByIndex(uint256 index) external view returns (uint256);
-}
-
-// File: contracts/erc721/IERC721Receiver.sol
-
-pragma solidity ^0.6.4;
-
-/**
- * @title ERC721 token receiver interface
- * @dev Interface for any contract that wants to support safeTransfers
- * from ERC721 asset contracts.
- */
-interface IERC721Receiver {
-    /**
-     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
-     * by `operator` from `from`, this function is called.
-     *
-     * It must return its Solidity selector to confirm the token transfer.
-     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
-     *
-     * The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`.
-     */
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
-    external returns (bytes4);
-}
-
-// File: contracts/erc721/ERC165.sol
-
-pragma solidity ^0.6.4;
-
-
-/**
- * @dev Implementation of the {IERC165} interface.
- *
- * Contracts may inherit from this and call {_registerInterface} to declare
- * their support of an interface.
- */
-contract ERC165 is IERC165 {
-    /*
-     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
-     */
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
-
-    /**
-     * @dev Mapping of interface ids to whether or not it's supported.
-     */
-    mapping(bytes4 => bool) private _supportedInterfaces;
-
-    constructor () internal {
-        // Derived contracts need only register support for their own interfaces,
-        // we register support for ERC165 itself here
-        _registerInterface(_INTERFACE_ID_ERC165);
-    }
-
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     *
-     * Time complexity O(1), guaranteed to always use less than 30 000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
-        return _supportedInterfaces[interfaceId];
-    }
-
-    /**
-     * @dev Registers the contract as an implementer of the interface defined by
-     * `interfaceId`. Support of the actual ERC165 interface is automatic and
-     * registering its interface id is not required.
-     *
-     * See {IERC165-supportsInterface}.
-     *
-     * Requirements:
-     *
-     * - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
-     */
-    function _registerInterface(bytes4 interfaceId) internal virtual {
-        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
-        _supportedInterfaces[interfaceId] = true;
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        uint256 index = digits - 1;
+        temp = value;
+        while (temp != 0) {
+            buffer[index--] = byte(uint8(48 + temp % 10));
+            temp /= 10;
+        }
+        return string(buffer);
     }
 }
-
-// File: contracts/utils/SafeMath.sol
-
-pragma solidity ^0.6.4;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -462,9 +202,281 @@ library SafeMath {
     }
 }
 
-// File: contracts/utils/Address.sol
+contract Controller {
+	address public controller;
 
-pragma solidity ^0.6.4;
+	constructor() public {
+		controller = msg.sender;
+	}
+
+	modifier onlyController() {
+		require (msg.sender == controller, "Controller: You are not the controller");
+		_;
+	}
+
+	function setController(address _newController) external onlyController {
+		controller = _newController;
+	}
+}
+
+/*
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with GSN meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address payable) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes memory) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        return msg.data;
+    }
+}
+
+/**
+ * @dev Required interface of an ERC721 compliant contract.
+ */
+interface IERC721 is IERC165 {
+    /**
+     * @dev Emitted when `tokenId` token is transfered from `from` to `to`.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
+     */
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     */
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+    /**
+     * @dev Returns the number of tokens in ``owner``'s account.
+     */
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+    /**
+     * @dev Returns the owner of the `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
+     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
+
+    /**
+     * @dev Transfers `tokenId` token from `from` to `to`.
+     *
+     * WARNING: Usage of this method is discouraged, use {safeTransferFrom} whenever possible.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 tokenId) external;
+
+    /**
+     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
+     * The approval is cleared when the token is transferred.
+     *
+     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
+     *
+     * Requirements:
+     *
+     * - The caller must own the token or be an approved operator.
+     * - `tokenId` must exist.
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address to, uint256 tokenId) external;
+
+    /**
+     * @dev Returns the account approved for `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function getApproved(uint256 tokenId) external view returns (address operator);
+
+    /**
+     * @dev Approve or remove `operator` as an operator for the caller.
+     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+     *
+     * Requirements:
+     *
+     * - The `operator` cannot be the caller.
+     *
+     * Emits an {ApprovalForAll} event.
+     */
+    function setApprovalForAll(address operator, bool _approved) external;
+
+    /**
+     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     *
+     * See {setApprovalForAll}
+     */
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+
+    /**
+      * @dev Safely transfers `tokenId` token from `from` to `to`.
+      *
+      * Requirements:
+      *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+      * - `tokenId` token must exist and be owned by `from`.
+      * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+      * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+      *
+      * Emits a {Transfer} event.
+      */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
+}
+
+/**
+ * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
+ * @dev See https://eips.ethereum.org/EIPS/eip-721
+ */
+interface IERC721Metadata is IERC721 {
+
+    /**
+     * @dev Returns the token collection name.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the token collection symbol.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+}
+
+/**
+ * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
+ * @dev See https://eips.ethereum.org/EIPS/eip-721
+ */
+interface IERC721Enumerable is IERC721 {
+
+    /**
+     * @dev Returns the total amount of tokens stored by the contract.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns a token ID owned by `owner` at a given `index` of its token list.
+     * Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
+     */
+    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256 tokenId);
+
+    /**
+     * @dev Returns a token ID at a given `index` of all the tokens stored by the contract.
+     * Use along with {totalSupply} to enumerate all tokens.
+     */
+    function tokenByIndex(uint256 index) external view returns (uint256);
+}
+
+/**
+ * @title ERC721 token receiver interface
+ * @dev Interface for any contract that wants to support safeTransfers
+ * from ERC721 asset contracts.
+ */
+interface IERC721Receiver {
+    /**
+     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+     * by `operator` from `from`, this function is called.
+     *
+     * It must return its Solidity selector to confirm the token transfer.
+     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+     *
+     * The selector can be obtained in Solidity with `IERC721.onERC721Received.selector`.
+     */
+    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+    external returns (bytes4);
+}
+
+/**
+ * @dev Implementation of the {IERC165} interface.
+ *
+ * Contracts may inherit from this and call {_registerInterface} to declare
+ * their support of an interface.
+ */
+contract ERC165 is IERC165 {
+    /*
+     * bytes4(keccak256('supportsInterface(bytes4)')) == 0x01ffc9a7
+     */
+    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7;
+
+    /**
+     * @dev Mapping of interface ids to whether or not it's supported.
+     */
+    mapping(bytes4 => bool) private _supportedInterfaces;
+
+    constructor () internal {
+        // Derived contracts need only register support for their own interfaces,
+        // we register support for ERC165 itself here
+        _registerInterface(_INTERFACE_ID_ERC165);
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     *
+     * Time complexity O(1), guaranteed to always use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+        return _supportedInterfaces[interfaceId];
+    }
+
+    /**
+     * @dev Registers the contract as an implementer of the interface defined by
+     * `interfaceId`. Support of the actual ERC165 interface is automatic and
+     * registering its interface id is not required.
+     *
+     * See {IERC165-supportsInterface}.
+     *
+     * Requirements:
+     *
+     * - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
+     */
+    function _registerInterface(bytes4 interfaceId) internal virtual {
+        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
+        _supportedInterfaces[interfaceId] = true;
+    }
+}
 
 /**
  * @dev Collection of functions related to the address type
@@ -603,10 +615,6 @@ library Address {
         }
     }
 }
-
-// File: contracts/utils/EnumerableSet.sol
-
-pragma solidity ^0.6.4;
 
 /**
  * @dev Library for managing
@@ -792,7 +800,6 @@ library EnumerableSet {
         return address(uint256(_at(set._inner, index)));
     }
 
-
     // UintSet
 
     struct UintSet {
@@ -847,10 +854,6 @@ library EnumerableSet {
         return uint256(_at(set._inner, index));
     }
 }
-
-// File: contracts/utils/EnumerableMap.sol
-
-pragma solidity ^0.6.4;
 
 /**
  * @dev Library for managing an enumerable variant of Solidity's
@@ -1085,56 +1088,6 @@ library EnumerableMap {
         return address(uint256(_get(map._inner, bytes32(key), errorMessage)));
     }
 }
-
-// File: contracts/utils/Strings.sol
-
-pragma solidity ^0.6.4;
-
-/**
- * @dev String operations.
- */
-library Strings {
-    /**
-     * @dev Converts a `uint256` to its ASCII `string` representation.
-     */
-    function toString(uint256 value) internal pure returns (string memory) {
-        // Inspired by OraclizeAPI's implementation - MIT licence
-        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
-
-        if (value == 0) {
-            return "0";
-        }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        uint256 index = digits - 1;
-        temp = value;
-        while (temp != 0) {
-            buffer[index--] = byte(uint8(48 + temp % 10));
-            temp /= 10;
-        }
-        return string(buffer);
-    }
-}
-
-// File: contracts/erc721/ERC721.sol
-
-pragma solidity ^0.6.4;
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * @title ERC721 Non-Fungible Token Standard basic implementation
@@ -1594,10 +1547,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual {}
 }
 
-// File: contracts/erc20/IERC20.sol
-
-pragma solidity ^0.6.4;
-
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
  */
@@ -1672,53 +1621,6 @@ interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-// File: contracts/yGift/Controller.sol
-
-pragma solidity ^0.6.4;
-
-contract Controller {
-	address controller;
-
-	mapping(address => bool) whitelistedMinters;
-
-	constructor() public {
-		controller = msg.sender;
-	}
-
-	modifier onlyController() {
-		require (msg.sender == controller, "Controller: You are not the controller");
-		_;
-	}
-
-	modifier onlyWhitelisted() {
-		require(msg.sender == controller || whitelistedMinters[msg.sender],
-		"Controller: You are not allowed to mint");
-		_;
-	}
-
-	function setController(address _newController) external onlyController {
-		controller = _newController;
-	}
-
-	function addMinter(address[] calldata _minters) external onlyController {
-		for (uint256 i = 0; i < _minters.length; i++)
-			whitelistedMinters[_minters[i]] = true;
-	}
-
-	function removeMinter(address[] calldata _minters) external onlyController {
-		for (uint256 i = 0; i < _minters.length; i++)
-			whitelistedMinters[_minters[i]] = false;
-	}
-}
-
-// File: contracts/yGift/yGift.sol
-
-pragma solidity ^0.6.4;
-
-
-
-
-
 library SafeERC20 {
 	using SafeMath for uint256;
 	using Address for address;
@@ -1769,67 +1671,14 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		uint256	lockedDuration;
 	}
 
-	Gift[] gifts;
+	Gift[] public gifts;
 
-	mapping(address => bool) supportedTokens;
-	mapping(address => uint256) tokensHeld;
+	mapping(address => uint256) public tokensHeld;
 
 	event GiftMinted(address indexed from, address indexed to, uint256 indexed tokenId, uint256 unlocksAt);
 	event Tip(address indexed tipper, uint256 indexed tokenId, address token, uint256 amount, string message);
 	event Redeemed(uint256 indexed tokenId);
 	event Collected(address indexed collecter, uint256 indexed tokenId, address token, uint256 amount);
-
-	/**
-	 * @dev Allows controller to support a new token to be tipped
-	 *
-	 * _tokens: array of token addresses to whitelist
-	 */
-	function addTokens(address[] calldata _tokens) external onlyController {
-		for (uint256 i = 0; i < _tokens.length; i++)
-			supportedTokens[_tokens[i]] = true;
-	}
-
-	/**
-	 * @dev Allows controller to remove the support support of a token to be tipped
-	 *
-	 * _tokens: array of token addresses to blacklist
-	 */
-	function removeTokens(address[] calldata _tokens) external onlyController {
-		for (uint256 i = 0; i < _tokens.length; i++)
-			supportedTokens[_tokens[i]] = false;
-	}
-
-	/**
-	 * @dev Returns a gift struct
-	 *
-	 * _tokenId: gift in which the function caller would like to tip
-	 */
-	function getGift(uint256 _tokenId) public view
-	returns (
-		string memory,
-		address,
-		address,
-		address,
-		uint256,
-		string memory,
-		bool,
-		uint256,
-		uint256
-	) {
-		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
-		Gift memory gift = gifts[_tokenId];
-		return (
-		gift.name,
-		gift.minter,
-		gift.recipient,
-		gift.token,
-		gift.amount,
-		gift.imageURL,
-		gift.redeemed,
-		gift.createdAt,
-		gift.lockedDuration
-		);
-	}
 
 	/**
 	 * @dev Mints a new Gift NFT and places it into the contract address for future collection
@@ -1854,7 +1703,6 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		string calldata _msg,
 		uint256 _lockedDuration)
 		external {
-		require(supportedTokens[_token], "yGift: ERC20 token is not supported.");
 		require(IERC20(_token).balanceOf(msg.sender) >= _amount, "yGift: Not enough token balance to mint."); 
 		require(_lockedDuration <= MAX_LOCK_PERIOD, "yGift: Locked period is too large");
 
@@ -1903,15 +1751,14 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		emit Redeemed(_tokenId);
 	}
 
-
 	/**
 	 * @dev Allows the gift recipient to collect their tokens
-	 * _amount: amount of tokens the gift owner would like to collect
 	 * _tokenId: gift in which the function caller would like to tip
+	 * _amount: amount of tokens the gift owner would like to collect
 	 *
 	 * requirement: caller must own the gift recipient && gift must have been redeemed
 	 */
-	function collect(uint256 _amount, uint256 _tokenId) public {
+	function collect(uint256 _tokenId, uint256 _amount) public {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		require(ownerOf(_tokenId) == msg.sender, "yGift: You are not the NFT owner.");
 		Gift storage gift = gifts[_tokenId];
@@ -1940,3 +1787,4 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT"), Controller {
 		return yGift.onERC721Received.selector;
 	}
 }
+
