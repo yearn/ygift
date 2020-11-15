@@ -12,7 +12,8 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 
 	struct Gift {
 		address	token;
-		uint amount;
+		uint amount;  // vested
+		uint tipped;  // not vested
 		uint start;
 		uint duration;
 		string name;
@@ -58,6 +59,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 			message: _msg,
 			url: _url,
 			amount: _amount,
+			tipped: 0,
 			start: _start,
 			duration: _duration
 		}));
@@ -78,7 +80,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	function tip(uint _tokenId, uint _amount, string calldata _msg) external {
 		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
 		Gift storage gift = gifts[_tokenId];
-		gift.amount = gift.amount.add(_amount);
+		gift.tipped = gift.tipped.add(_amount);
 		IERC20(gift.token).safeTransferFrom(msg.sender, address(this), _amount);
 		emit Tip(msg.sender, _tokenId, gift.token, _amount, _msg);
 	}
@@ -113,11 +115,15 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		Gift storage gift = gifts[_tokenId];
 		
 		require(gift.start < block.timestamp, "yGift: Rewards still vesting");
-		uint _available = available(gift.amount, gift.start, gift.duration);
+		uint _vested = available(gift.amount, gift.start, gift.duration);
+		uint _available = _vested.add(gift.tipped);
 		if (_amount > _available) _amount = _available;
 		require(_amount > 0, "yGift: insufficient amount");
 
-		gift.amount = gift.amount.sub(_amount);
+		uint _tips = min(_amount, gift.tipped);
+		if (gift.tipped > 0) gift.tipped = gift.tipped.sub(_tips);
+		gift.amount = gift.amount.sub(_amount).add(_tips);
+
 		IERC20(gift.token).safeTransfer(msg.sender, _amount);
 		emit Collected(msg.sender, _tokenId, gift.token, _amount);
 	}

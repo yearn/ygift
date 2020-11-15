@@ -15,6 +15,7 @@ def test_mint(ygift, token, giftee, chain):
         "message": "msg",
         "url": "url",
         "amount": amount,
+        "tipped": 0,
         "start": start,
         "duration": duration,
     }
@@ -24,10 +25,14 @@ def test_tip(ygift, token, giftee, chain):
     amount = Wei("1000 ether")
     start = chain[-1].timestamp
     token.approve(ygift, 2 ** 256 - 1)
-    ygift.mint(giftee, token, amount, "name", "msg", "url", start, 0)
+    ygift.mint(giftee, token, amount, "name", "msg", "url", start, 1000)
     ygift.tip(0, amount, "tip")
     gift = ygift.gifts(0).dict()
-    assert gift["amount"] == amount * 2
+    assert gift["amount"] == amount
+    assert gift["tipped"] == amount
+    # tips are available instantly
+    ygift.collect(0, amount, {'from': giftee})
+    assert token.balanceOf(giftee) >= amount
 
 
 def test_tip_nonexistent(ygift, token):
