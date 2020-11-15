@@ -127,8 +127,8 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		require(_amount > 0, "yGift: insufficient amount");
 
 		uint _tips = min(_amount, gift.tipped);
-		if (gift.tipped > 0) gift.tipped = gift.tipped.sub(_tips);
-		gift.amount = gift.amount.sub(_amount).add(_tips);
+		if (_tips > 0) gift.tipped = gift.tipped.sub(_tips);
+		gift.amount = gift.amount.add(_tips).sub(_amount);
 
 		IERC20(gift.token).safeTransfer(msg.sender, _amount);
 		emit Collected(msg.sender, _tokenId, gift.token, _amount);
