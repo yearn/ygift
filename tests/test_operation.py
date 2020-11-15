@@ -31,6 +31,8 @@ def test_tip(ygift, token, giftee, chain):
     assert gift["amount"] == amount
     assert gift["tipped"] == amount
     # tips are available instantly
+    chain.mine()
+    assert ygift.collectible(0) >= amount
     ygift.collect(0, amount, {'from': giftee})
     assert token.balanceOf(giftee) >= amount
 

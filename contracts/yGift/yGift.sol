@@ -38,8 +38,6 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * _start: the amount of time the gift will be locked until the recipient can collect it   
 	 * _duration: duration over which the amount linearly becomes available  *
 	 *
-	 * requirement: only a whitelisted minter can call this function
-	 *
 	 * Emits a {Tip} event.
 	 */
 	function mint(
@@ -94,7 +92,6 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * _amount: amount of tokens in the gift
 	 * _start: Time at which the cliff ends
 	 * _duration: vesting period
-	 *
 	 */
 	function available(uint _amount, uint _start, uint _duration) public view returns (uint) {
 		if (_start > block.timestamp) return 0;
@@ -103,11 +100,20 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	}
 
 	/**
+	 * @dev Returns the maximum collectible amount of tokens for a given gift
+	 * _tokenId: gift for which to calculate the collectibe amount
+	 */
+	function collectible(uint _tokenId) public view returns (uint) {
+		Gift storage gift = gifts[_tokenId];
+		return available(gift.amount, gift.start, gift.duration).add(gift.tipped);
+	}
+
+	/**
 	 * @dev Allows the gift recipient to collect their tokens
 	 * _tokenId: gift in which the function caller would like to tip
 	 * _amount: amount of tokens the gift owner would like to collect
 	 *
-	 * requirement: caller must own the gift recipient && gift must have been redeemed
+	 * requirement: caller must be the owner of the gift
 	 */
 	function collect(uint _tokenId, uint _amount) public {
 		require(_isApprovedOrOwner(msg.sender, _tokenId), "yGift: You are not the NFT owner");
