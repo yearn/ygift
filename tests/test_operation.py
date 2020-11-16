@@ -1,4 +1,5 @@
 import brownie
+import pytest
 from brownie import Wei
 
 
@@ -35,7 +36,7 @@ def test_tip(ygift, token, giftee, chain):
     chain.sleep(500)
     chain.mine()
     assert ygift.collectible(0) >= tip
-    ygift.collect(0, tip, {'from': giftee})
+    ygift.collect(0, tip, {"from": giftee})
     assert token.balanceOf(giftee) == tip
 
 
@@ -68,3 +69,20 @@ def test_collect(ygift, token, giftee, chain):
 
     ygift.collect(0, amount, {"from": giftee})
     assert token.balanceOf(giftee) == amount
+
+
+@pytest.mark.parametrize("duration", [0, 10])
+def test_tip_after_withdrawn(ygift, token, giftee, chain, duration):
+    amount = Wei("1000 ether")
+    tip = amount / 2
+    start = chain[-1].timestamp
+    token.approve(ygift, 2 ** 256 - 1)
+    ygift.mint(giftee, token, amount, "name", "msg", "url", start, duration)
+    chain.sleep(duration)
+    ygift.collect(0, 2 ** 256 - 1, {"from": giftee})
+    ygift.tip(0, tip, "tip")
+    ygift.collect(0, 2 ** 256 - 1, {"from": giftee})
+    gift = ygift.gifts(0).dict()
+    assert gift["amount"] == 0
+    assert gift["tipped"] == 0
+    assert token.balanceOf(giftee) == amount + tip

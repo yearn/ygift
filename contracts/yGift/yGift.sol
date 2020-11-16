@@ -120,14 +120,12 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		
 		Gift storage gift = gifts[_tokenId];
 		
-		require(gift.start < block.timestamp, "yGift: Rewards still vesting");
+		require(block.timestamp >= gift.start, "yGift: Rewards still vesting");
 		uint _vested = available(gift.amount, gift.start, gift.duration);
 		uint _available = _vested.add(gift.tipped);
-		if (_amount > _available) _amount = _available;
-		require(_amount > 0, "yGift: insufficient amount");
-
+		_amount = min(_amount, _available);
 		uint _tips = min(_amount, gift.tipped);
-		if (_tips > 0) gift.tipped = gift.tipped.sub(_tips);
+		gift.tipped = gift.tipped.sub(_tips);
 		gift.amount = gift.amount.add(_tips).sub(_amount);
 
 		IERC20(gift.token).safeTransfer(msg.sender, _amount);
