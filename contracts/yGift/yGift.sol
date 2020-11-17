@@ -104,7 +104,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * _tokenId: gift for which to calculate the collectibe amount
 	 */
 	function collectible(uint _tokenId) public view returns (uint) {
-		Gift storage gift = gifts[_tokenId];
+		Gift memory gift = gifts[_tokenId];
 		return available(gift.amount, gift.start, gift.duration).add(gift.tipped);
 	}
 
@@ -130,10 +130,5 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 
 		IERC20(gift.token).safeTransfer(msg.sender, _amount);
 		emit Collected(msg.sender, _tokenId, gift.token, _amount);
-	}
-
-	function onERC721Received(address _operator, address _from, uint _tokenId, bytes calldata _data) external view returns (bytes4) {
-		require(msg.sender == address(this), "yGift: Cannot receive other NFTs");
-		return yGift.onERC721Received.selector;
 	}
 }
