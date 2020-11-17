@@ -14,7 +14,8 @@ def minter(accounts):
 @pytest.fixture()
 def giftee(accounts):
     return accounts[1]
-    
+
+
 @pytest.fixture()
 def receiver(accounts):
     return accounts[2]
