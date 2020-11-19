@@ -70,9 +70,10 @@ class StateMachine:
 
         giftee_before = self.token.balanceOf(self.giftee)
         ygift_before = self.token.balanceOf(self.ygift)
-        collectible = self.ygift.collectible(0)
 
         self.chain.sleep(sleep)
+        self.chain.mine()
+        collectible = self.ygift.collectible(0)
         if self.chain[-1].timestamp < self.ygift.gifts(0).dict()["start"]:
             with brownie.reverts("yGift: Rewards still vesting"):
                 self.ygift.collect(gift, amount, {"from": self.giftee})
