@@ -44,16 +44,18 @@ class StateMachine:
 
     def rule_transfer(self):
         print("  transferFrom()")
-        if not self.ygift.totalSupply():
+        num_gifts = self.ygift.totalSupply()
+        if not num_gifts:
             return
-        if self.ygift.ownerOf(0) == self.giftee:
+        gift = randrange(num_gifts)
+        if self.ygift.ownerOf(gift) == self.giftee:
             self.ygift.transferFrom(
-                self.giftee, self.receiver, 0, {"from": self.giftee}
+                self.giftee, self.receiver, gift, {"from": self.giftee}
             )
         else:
             with brownie.reverts("ERC721: transfer caller is not owner nor approved"):
                 self.ygift.transferFrom(
-                    self.giftee, self.receiver, 0, {"from": self.giftee}
+                    self.giftee, self.receiver, gift, {"from": self.giftee}
                 )
 
     def rule_collect(self, amount="st_amount", sleep="st_sleep"):
@@ -63,7 +65,7 @@ class StateMachine:
             return
         gift = randrange(num_gifts)
 
-        if self.ygift.ownerOf(0) != self.giftee:
+        if self.ygift.ownerOf(gift) != self.giftee:
             with brownie.reverts("yGift: You are not the NFT owner"):
                 self.ygift.collect(gift, amount, {"from": self.giftee})
             return
@@ -73,8 +75,8 @@ class StateMachine:
 
         self.chain.sleep(sleep)
         self.chain.mine()
-        collectible = self.ygift.collectible(0)
-        if self.chain[-1].timestamp < self.ygift.gifts(0).dict()["start"]:
+        collectible = self.ygift.collectible(gift)
+        if self.chain[-1].timestamp < self.ygift.gifts(gift).dict()["start"]:
             with brownie.reverts("yGift: Rewards still vesting"):
                 self.ygift.collect(gift, amount, {"from": self.giftee})
             return
