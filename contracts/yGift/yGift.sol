@@ -21,7 +21,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		string url;
 	}
 
-	Gift[] public gifts;
+	mapping(uint => Gift) public gifts;
 
 	event GiftMinted(address indexed from, address indexed to, uint indexed tokenId, uint unlocksAt);
 	event Tip(address indexed tipper, uint indexed tokenId, address token, uint amount, string message);
@@ -50,8 +50,8 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		uint _start,
 		uint _duration)
 	external {
-		uint _id = gifts.length;
-		gifts.push(Gift({
+		uint _id = totalSupply();
+		gifts[_id] = Gift({
 			token: _token,
 			name: _name,
 			message: _msg,
@@ -60,7 +60,8 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 			tipped: 0,
 			start: _start,
 			duration: _duration
-		}));
+		});
+
 		_safeMint(_to, _id);
 		IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
 		emit GiftMinted(msg.sender, _to, _id, _start);
@@ -76,7 +77,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * Emits a {Tip} event.
 	 */
 	function tip(uint _tokenId, uint _amount, string calldata _msg) external {
-		require(_tokenId < gifts.length, "yGift: Token ID does not exist.");
+		require(_tokenId < totalSupply(), "yGift: Token ID does not exist.");
 		Gift storage gift = gifts[_tokenId];
 		gift.tipped = gift.tipped.add(_amount);
 		IERC20(gift.token).safeTransferFrom(msg.sender, address(this), _amount);
