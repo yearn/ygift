@@ -89,7 +89,6 @@ contract NFTSupport is yGift{
 		}
 		delete nftTokenToYGift[_nftContract][_nftId];
 		delete data.nftTokenIndex[_nftContract][_nftId];
-
 		IERC721(_nftContract).safeTransferFrom(address(this), msg.sender, _nftId);
 		emit nftDetached(_nftContract, _nftId, _yGiftId);
 	}
