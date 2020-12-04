@@ -39,7 +39,7 @@ class StateMachine:
         num_gifts = self.ygift.totalSupply()
         if not num_gifts:
             return
-        gift = randrange(num_gifts)
+        gift = randrange(num_gifts) + 1
         self.ygift.tip(gift, "50 ether", "tip")
 
     def rule_transfer(self):
@@ -47,7 +47,7 @@ class StateMachine:
         num_gifts = self.ygift.totalSupply()
         if not num_gifts:
             return
-        gift = randrange(num_gifts)
+        gift = randrange(num_gifts) + 1
         if self.ygift.ownerOf(gift) == self.giftee:
             self.ygift.transferFrom(
                 self.giftee, self.receiver, gift, {"from": self.giftee}
@@ -63,7 +63,7 @@ class StateMachine:
         num_gifts = self.ygift.totalSupply()
         if not num_gifts or amount == 0:
             return
-        gift = randrange(num_gifts)
+        gift = randrange(num_gifts) + 1
 
         if self.ygift.ownerOf(gift) != self.giftee:
             with brownie.reverts("yGift: You are not the NFT owner"):
