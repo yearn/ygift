@@ -50,7 +50,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		uint _start,
 		uint _duration)
 	external {
-		uint _id = totalSupply();
+		uint _id = totalSupply() + 1;
 		gifts[_id] = Gift({
 			token: _token,
 			name: _name,

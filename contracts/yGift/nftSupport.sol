@@ -30,7 +30,21 @@ contract NFTSupport is yGift{
 	}
 
 	function ownerOfChild(address _nftContract, uint _nftId) public view returns (address) {
-		return ownerOf(nftTokenToYGift[_nftContract][_nftId]);
+		uint tokenId = nftTokenToYGift[_nftContract][_nftId];
+		require (tokenId > 0, "NFTSupport: tokenId owner cannot be 0");
+		return ownerOf(tokenId);
+	}
+
+	function rootOwnerOfChild(address _nftContract, uint _nftId) public view returns (address) {
+		uint tokenId = nftTokenToYGift[_nftContract][_nftId];
+		require (tokenId > 0, "NFTSupport: tokenId owner cannot be 0");
+		address owner = ownerOf(tokenId);
+		while (owner == address(this)){
+			tokenId = nftTokenToYGift[owner][tokenId];
+			require (tokenId > 0, "NFTSupport: tokenId owner cannot be 0");
+			owner = ownerOf(tokenId);
+		}
+		return owner;
 	}
 
 	function numberOfDifferentNftsInGift(uint _tokenId) public view returns (uint) {
@@ -54,7 +68,7 @@ contract NFTSupport is yGift{
 	}
 
 	function sendNftToYgift(address _nftContract, uint _nftId, uint _yGiftId) public {
-		require (_yGiftId < totalSupply(), "NFTSupport: yGift id is out of range");
+		require (_yGiftId < totalSupply() + 1, "NFTSupport: yGift id is out of range");
 
 		nftTokenToYGift[_nftContract][_nftId] = _yGiftId;
 		NFTData storage data = nftData[_yGiftId];
