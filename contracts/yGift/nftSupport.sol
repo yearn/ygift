@@ -138,7 +138,7 @@ contract NFTSupport is yGift{
 		require(_isApprovedOrOwner(msg.sender, _yGiftId), "NFTSupport: You are not the NFT owner");
 		require(nftTokenToYGift[_nftContract][_nftId] == _yGiftId, "NFTSupport: NFT ID is not attached to yGift ID");
 		NFTData storage data = nftData[_yGiftId];
-		require(data.nftTokenIndex[_nftContract][_nftId] != 0, "NFTSupport: ");
+		require(data.nftTokenIndex[_nftContract][_nftId] != 0, "NFTSupport: index cannot be 0");
 
 		// index offset removed
 		uint index = data.nftTokenIndex[_nftContract][_nftId] - 1;
@@ -146,7 +146,7 @@ contract NFTSupport is yGift{
 		uint lastId = data.nftTokens[_nftContract][nftLength - 1];
 
 		data.nftTokens[_nftContract][index] = lastId;
-		data.nftTokenIndex[_nftContract][lastId] = index;
+		data.nftTokenIndex[_nftContract][lastId] = index + 1;
 		data.nftTokens[_nftContract].pop();
 		if (nftLength == 1) {
 			uint contractLength = data.nftContracts.length;

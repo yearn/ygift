@@ -117,15 +117,12 @@ def test_many_different_nfts(nftsupport, nftholder, token, chain, nfttest, nftte
     assert nftsupport.getIndexOfNftIdInGift(tokenId, nfttest3, 0) == 0
 
     for i in range(3):
-        nfttest.mint({'from': nftholder})
         nftsupport.collectNftFromYgift(nfttest, i, tokenId, {'from': nftholder})
 
     for j in range(4):
-        nfttest2.mint({'from': nftholder})
         nftsupport.collectNftFromYgift(nfttest2, j, tokenId, {'from': nftholder})
 
     for k in range(5):
-        nfttest3.mint({'from': nftholder})
         nftsupport.collectNftFromYgift(nfttest3, k, tokenId, {'from': nftholder})
 
     assert nftsupport.numberOfDifferentNftsInGift(tokenId) == 0
