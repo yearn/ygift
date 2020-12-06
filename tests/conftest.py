@@ -33,6 +33,10 @@ def axie(interface):
     return interface.IERC721("0xf5b0a3efb8e8e4c201e2a935f110eaaf3ffecb8d")
 
 @pytest.fixture()
+def erc1155test(TestERC1155, minter):
+    return TestERC1155.deploy({"from": minter})
+
+@pytest.fixture()
 def nfttest(TestNft, minter):
     return TestNft.deploy({"from": minter})
 
