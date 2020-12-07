@@ -127,7 +127,7 @@ def test_many_different_nfts(nftsupport, nftholder, token, chain, nfttest, nftte
 
     assert nftsupport.numberOfDifferentNftsInGift(tokenId) == 0
 
-def test_recursive_gifts_axie(nftsupport, nftholder, axie, token, chain):
+def test_recursive_gifts_axie(nftsupport, nftholder, axie, token, chain, giftee):
     axie.setApprovalForAll(nftsupport, True, {'from':nftholder})
     start = chain[-1].timestamp
     nftsupport.setApprovalForAll(nftsupport, True, {'from':nftholder})
@@ -141,3 +141,6 @@ def test_recursive_gifts_axie(nftsupport, nftholder, axie, token, chain):
     assert nftsupport.rootOwnerOfChild(axie, 2815) == nftholder
     assert nftsupport.rootOwnerOfChild(nftsupport, 1) == nftholder
     assert nftsupport.rootOwnerOfChild(nftsupport, 2) == nftholder
+    with brownie.reverts("NFTSupport: You are not the NFT owner"):
+        nftsupport.collectNftFromYgift(axie, 2815, 1,{'from':giftee})
+    nftsupport.collectNftFromYgift(axie, 2815, 1,{'from':nftholder})

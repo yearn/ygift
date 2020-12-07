@@ -134,6 +134,25 @@ def test_tokens_in_few_batchtx(nftsupport, nftholder, token, erc1155test, erc115
     with brownie.reverts("ERC1155Support: YGift does not have tokenId indexed from given address"):
         nftsupport.collectBatchErc1155FromYgift(erc1155test, [0, 2], [25, 50], 1, {'from': nftholder})
 
+def test_recursive_gifts_erc1155(nftsupport, nftholder, erc1155test, token, chain, giftee):
+    erc1155test.setApprovalForAll(nftsupport, True, {'from':nftholder})
+    erc1155test.mintBatch([0, 2, 4], [100, 200, 300], {'from': nftholder})
+    start = chain[-1].timestamp
+    nftsupport.setApprovalForAll(nftsupport, True, {'from':nftholder})
+    nftsupport.mint(nftholder, token, 0, "name", "msg", "url", start, 0)
+    nftsupport.mint(nftholder, token, 0, "name", "msg", "url", start, 0)
+    nftsupport.mint(nftholder, token, 0, "name", "msg", "url", start, 0)
+    nftsupport.sendNftToYgift(nftsupport, 1, 2, {'from':nftholder})
+    nftsupport.sendNftToYgift(nftsupport, 2, 3, {'from':nftholder})
+    nftsupport.sendErc1155ToYgift(erc1155test, 0, 50, 1, {'from': nftholder})
+    # assert nftsupport.ownerOfChild(axie, 2815) == nftsupport
+    # assert nftsupport.rootOwnerOfChild(axie, 2815) == nftholder
+    assert nftsupport.rootOwnerOfChild(nftsupport, 1) == nftholder
+    assert nftsupport.rootOwnerOfChild(nftsupport, 2) == nftholder
+    with brownie.reverts("NFTSupport: You are not the NFT owner"):
+        nftsupport.collectErc1155FromYgift(erc1155test, 0, 50, 1, {'from': giftee})
+    nftsupport.collectErc1155FromYgift(erc1155test, 0, 50, 1, {'from': nftholder})
+
 # def som1():
 #     nftsupport = NFTSupport.deploy({"from": accounts[0]})
 #     nftholder = accounts.at("0xf521Bb7437bEc77b0B15286dC3f49A87b9946773", force=True)

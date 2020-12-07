@@ -57,16 +57,36 @@ contract NFTSupport is yGift{
 		return ownerOf(tokenId);
 	}
 
-	function rootOwnerOfChild(address _nftContract, uint _nftId) public view returns (address) {
+	function parentOfChild(address _nftContract, uint _nftId) public view returns (uint) {
 		uint tokenId = nftTokenToYGift[_nftContract][_nftId];
 		require (tokenId > 0, "NFTSupport: tokenId owner cannot be 0");
+		return tokenId;
+	}
+
+	function rootOwnerOfChild(address _nftContract, uint _nftId) public view returns (address) {
+		uint tokenId = nftTokenToYGift[_nftContract][_nftId];
+		require (tokenId > 0, "NFTSupport: tokenId mapping owner cannot be 0");
 		address owner = ownerOf(tokenId);
 		while (owner == address(this)){
 			tokenId = nftTokenToYGift[owner][tokenId];
-			require (tokenId > 0, "NFTSupport: tokenId owner cannot be 0");
+			require (tokenId > 0, "NFTSupport: tokenId mapping owner cannot be 0");
 			owner = ownerOf(tokenId);
 		}
 		return owner;
+	}
+
+	function rootParentOfChild(address _nftContract, uint _nftId) public view returns (uint) {
+		uint tokenId = nftTokenToYGift[_nftContract][_nftId];
+		if (_nftContract == address(this) && tokenId == 0)
+			return _nftId;
+		require (tokenId > 0, "NFTSupport: tokenId mapping owner cannot be 0");
+		address owner = ownerOf(tokenId);
+		while (owner == address(this)){
+			tokenId = nftTokenToYGift[owner][tokenId];
+			require (tokenId > 0, "NFTSupport: tokenId mapping owner cannot be 0");
+			owner = ownerOf(tokenId);
+		}
+		return tokenId;
 	}
 
 	function numberOfDifferentNftsInGift(uint _tokenId) public view returns (uint) {
@@ -135,7 +155,7 @@ contract NFTSupport is yGift{
 	}
 
 	function collectNftFromYgift(address _nftContract, uint _nftId, uint _yGiftId) public {
-		require(_isApprovedOrOwner(msg.sender, _yGiftId), "NFTSupport: You are not the NFT owner");
+		require(_isApprovedOrOwner(msg.sender, rootParentOfChild(address(this), _yGiftId)), "NFTSupport: You are not the NFT owner");
 		require(nftTokenToYGift[_nftContract][_nftId] == _yGiftId, "NFTSupport: NFT ID is not attached to yGift ID");
 		NFTData storage data = nftData[_yGiftId];
 		require(data.nftTokenIndex[_nftContract][_nftId] != 0, "NFTSupport: index cannot be 0");
@@ -183,7 +203,7 @@ contract NFTSupport is yGift{
 	}
 
 	function collectErc1155FromYgift(address _erc1155Contract, uint _erc1155TokenId, uint _erc1155TokenValue, uint _yGiftId) public {
-		require(_isApprovedOrOwner(msg.sender, _yGiftId), "NFTSupport: You are not the NFT owner");
+		require(_isApprovedOrOwner(msg.sender, rootParentOfChild(address(this), _yGiftId)), "NFTSupport: You are not the NFT owner");
 
 		ERC1155Data storage data = erc1155Data[_yGiftId];
 		require(data.erc1155TokenIndex[_erc1155Contract][_erc1155TokenId] != 0, "ERC1155Support: YGift does not have tokenId indexed from given address");
@@ -239,7 +259,7 @@ contract NFTSupport is yGift{
 	}
 
 	function collectBatchErc1155FromYgift(address _erc1155Contract, uint[] calldata _erc1155TokensId, uint[] calldata _erc1155TokensValue, uint _yGiftId) public {
-		require(_isApprovedOrOwner(msg.sender, _yGiftId), "NFTSupport: You are not the NFT owner");
+		require(_isApprovedOrOwner(msg.sender, rootParentOfChild(address(this), _yGiftId)), "NFTSupport: You are not the NFT owner");
 		require(_erc1155TokensId.length == _erc1155TokensValue.length, "ERC1155Support: token and value array not same size.");
 
 		ERC1155Data storage data = erc1155Data[_yGiftId];
