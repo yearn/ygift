@@ -37,6 +37,10 @@ def erc1155test(TestERC1155, minter):
     return TestERC1155.deploy({"from": minter})
 
 @pytest.fixture()
+def erc1155test2(TestERC1155, minter):
+    return TestERC1155.deploy({"from": minter})
+
+@pytest.fixture()
 def nfttest(TestNft, minter):
     return TestNft.deploy({"from": minter})
 

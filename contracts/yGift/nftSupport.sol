@@ -199,7 +199,7 @@ contract NFTSupport is yGift{
 			delete data.erc1155TokenValue[_erc1155Contract][_erc1155TokenId];
 			delete data.erc1155TokenIndex[_erc1155Contract][_erc1155TokenId];
 			data.erc1155Tokens[_erc1155Contract][tokenIndex] = lastTokenId;
-			if (tokenIndex != lastTokenId)
+			if (_erc1155TokenId != lastTokenId)
 				data.erc1155TokenIndex[_erc1155Contract][lastTokenId] = tokenIndex + 1;
 			data.erc1155Tokens[_erc1155Contract].pop();
 			if (tokenLength == 1) {
@@ -247,7 +247,6 @@ contract NFTSupport is yGift{
 			require(data.erc1155TokenIndex[_erc1155Contract][_erc1155TokensId[i]] != 0, "ERC1155Support: YGift does not have tokenId indexed from given address");
 			// remove offset
 			uint tokenIndex = data.erc1155TokenIndex[_erc1155Contract][_erc1155TokensId[i]] - 1;
-			// uint tokenId = data.erc1155Tokens[_erc1155Contract][tokenIndex];
 			uint currentTokenValue = data.erc1155TokenValue[_erc1155Contract][_erc1155TokensId[i]];
 			require(_erc1155TokensValue[i] <= currentTokenValue, "ERC1155Support: yGift doesn't have sufficient erc1155 token value");
 			if (_erc1155TokensValue[i] < currentTokenValue)
@@ -258,7 +257,7 @@ contract NFTSupport is yGift{
 				delete data.erc1155TokenValue[_erc1155Contract][_erc1155TokensId[i]];
 				delete data.erc1155TokenIndex[_erc1155Contract][_erc1155TokensId[i]];
 				data.erc1155Tokens[_erc1155Contract][tokenIndex] = lastTokenId;
-				if (tokenIndex != lastTokenId)
+				if (_erc1155TokensId[i] != lastTokenId)
 					data.erc1155TokenIndex[_erc1155Contract][lastTokenId] = tokenIndex + 1;
 				data.erc1155Tokens[_erc1155Contract].pop();
 				if (tokenLength == 1) {
