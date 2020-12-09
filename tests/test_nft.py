@@ -134,8 +134,10 @@ def test_recursive_gifts_axie(nftsupport, nftholder, axie, token, chain, giftee)
     nftsupport.mint(nftholder, token, 0, "name", "msg", "url", start, 0)
     nftsupport.mint(nftholder, token, 0, "name", "msg", "url", start, 0)
     nftsupport.mint(nftholder, token, 0, "name", "msg", "url", start, 0)
+    nftsupport.mint(nftholder, token, 0, "name", "msg", "url", start, 0)
     nftsupport.sendNftToYgift(nftsupport, 1, 2, {'from':nftholder})
     nftsupport.sendNftToYgift(nftsupport, 2, 3, {'from':nftholder})
+    nftsupport.sendNftToYgift(nftsupport, 3, 4, {'from':nftholder})
     nftsupport.sendNftToYgift(axie, 2815, 1,{'from':nftholder})
     assert nftsupport.ownerOfChild(axie, 2815) == nftsupport
     assert nftsupport.rootOwnerOfChild(axie, 2815) == nftholder
@@ -144,3 +146,6 @@ def test_recursive_gifts_axie(nftsupport, nftholder, axie, token, chain, giftee)
     with brownie.reverts("NFTSupport: You are not the NFT owner"):
         nftsupport.collectNftFromYgift(axie, 2815, 1,{'from':giftee})
     nftsupport.collectNftFromYgift(axie, 2815, 1,{'from':nftholder})
+    nftsupport.collectNftFromYgift(nftsupport, 1, 2,{'from':nftholder})
+    assert nftsupport.ownerOf(1) == nftholder
+    assert nftsupport.rootOwnerOfChild(nftsupport, 1) ==  nftholder

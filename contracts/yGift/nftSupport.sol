@@ -65,6 +65,8 @@ contract NFTSupport is yGift{
 
 	function rootOwnerOfChild(address _nftContract, uint _nftId) public view returns (address) {
 		uint tokenId = nftTokenToYGift[_nftContract][_nftId];
+		if (tokenId == 0 && _nftContract == address(this))
+			return ownerOf(_nftId);
 		require (tokenId > 0, "NFTSupport: tokenId mapping owner cannot be 0");
 		address owner = ownerOf(tokenId);
 		while (owner == address(this)){
