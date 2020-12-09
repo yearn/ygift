@@ -50,7 +50,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		uint _start,
 		uint _duration)
 	external {
-		uint _id = totalSupply();
+		uint _id = totalSupply() + 1;
 		gifts[_id] = Gift({
 			token: _token,
 			name: _name,
@@ -77,7 +77,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * Emits a {Tip} event.
 	 */
 	function tip(uint _tokenId, uint _amount, string calldata _msg) external {
-		require(_tokenId < totalSupply(), "yGift: Token ID does not exist.");
+		require(_tokenId < totalSupply() + 1, "yGift: Token ID does not exist.");
 		Gift storage gift = gifts[_tokenId];
 		gift.tipped = gift.tipped.add(_amount);
 		IERC20(gift.token).safeTransferFrom(msg.sender, address(this), _amount);
