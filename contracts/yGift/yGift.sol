@@ -12,7 +12,8 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 
 	struct Gift {
 		address	token;
-		uint amount;  // vested
+		uint amount;
+		uint amountWithdrawn;  // vested
 		uint tipped;  // not vested
 		uint start;
 		uint duration;
@@ -57,6 +58,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 			message: _msg,
 			url: _url,
 			amount: _amount,
+			amountWithdrawn: 0,
 			tipped: 0,
 			start: _start,
 			duration: _duration
@@ -94,10 +96,10 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 	 * _start: Time at which the cliff ends
 	 * _duration: vesting period
 	 */
-	function available(uint _amount, uint _start, uint _duration) public view returns (uint) {
+	function available(uint _amount, uint _amountWithdrawn, uint _start, uint _duration) public view returns (uint) {
 		if (_start > block.timestamp) return 0;
 		if (_duration == 0) return _amount;
-		return _amount * min(block.timestamp - _start, _duration) / _duration;
+		return (_amount * min(block.timestamp - _start, _duration) / _duration).sub(_amountWithdrawn);
 	}
 
 	/**
@@ -122,12 +124,13 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		Gift storage gift = gifts[_tokenId];
 		
 		require(block.timestamp >= gift.start, "yGift: Rewards still vesting");
-		uint _vested = available(gift.amount, gift.start, gift.duration);
+		uint _vested = available(gift.amount, gift.amountWithdrawn, gift.start, gift.duration);
 		uint _available = _vested.add(gift.tipped);
 		_amount = min(_amount, _available);
 		uint _tips = min(_amount, gift.tipped);
 		gift.tipped = gift.tipped.sub(_tips);
 		gift.amount = gift.amount.add(_tips).sub(_amount);
+		gift.amountWithdrawn = gift.amountWithdrawn.add(_amount);
 
 		IERC20(gift.token).safeTransfer(msg.sender, _amount);
 		emit Collected(msg.sender, _tokenId, gift.token, _amount);
