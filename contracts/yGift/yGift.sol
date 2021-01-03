@@ -129,7 +129,7 @@ contract yGift is ERC721("yearn Gift NFT", "yGIFT") {
 		_amount = min(_amount, _available);
 		uint _tips = min(_amount, gift.tipped);
 		gift.tipped = gift.tipped.sub(_tips);
-		gift.amount = gift.amount.add(_tips).sub(_amount);
+		gift.amount = gift.amount.add(_tips);
 		gift.amountWithdrawn = gift.amountWithdrawn.add(_amount);
 
 		IERC20(gift.token).safeTransfer(msg.sender, _amount);
